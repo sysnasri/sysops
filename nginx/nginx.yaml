@@ -92,12 +92,17 @@
           csr_path: /etc/nginx/ssl/{{ vhost_domain_name }}.csr
           provider: selfsigned  
 
+     - name: Generate DH Parameters with a different size (2048 bits)
+       community.crypto.openssl_dhparam:
+       path: /etc/nginx/ssl/dhparams.pem
+       size: 2048
+
 
      - name: Opeing port 80 through iptables
        ansible.builtin.iptables:
             chain: INPUT
             protocol: tcp
-            destination_port: 80
+            destination_port: "80"
             ctstate: NEW
             syn: match
             jump: ACCEPT
@@ -109,7 +114,7 @@
        ansible.builtin.iptables:
             chain: INPUT
             protocol: tcp
-            destination_port: 443
+            destination_port: "443"
             ctstate: NEW
             syn: match
             jump: ACCEPT
@@ -128,14 +133,14 @@
      - name: add {{vhost_domain_name}}  as virtual host
        template:
             src: template/local.com
-            dest: /etc/nginx/sites-available
-            validate: "/usr/sbin/nginx -c %s -t"  
+            dest: /etc/nginx/sites-available/
+            #validate: "/usr/sbin/nginx -c %s -t"  
 
 
      - name: enable site availble via symlink 
        file:
          src: /etc/nginx/sites-available/{{vhost_domain_name}}
-         dest: /etc/nginx/sites-enabled/
+         dest: /etc/nginx/sites-enabled/{{vhost_domain_name}}
          owner: root
          group: root
          state: link
@@ -168,8 +173,8 @@
        template:
          src: template/ssl-params.conf
          dest: /etc/nginx/ssl/ssl-params.conf
-         notify: 
-            - nginx_reload
+       notify: 
+            - nginx_restart
 
 
      - name: Add or modify nofile soft limit for the user www-data
@@ -177,13 +182,13 @@
         domain: www-data
         limit_type: soft
         limit_item: nofile
-        value: 64000
+        value: "64000"
         
   handlers:
-    - name: nginx_reload 
+    - name: nginx_restart 
       service: 
         name: nginx
-        state: reloaded
+        state: restarted
 
 
 

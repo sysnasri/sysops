@@ -16,7 +16,7 @@ server {
                 try_files $uri $uri/ =404;
 
         }
-        location ~* \.(css|js|jpg|png|html)$ {
+        location ~* \.(css|js|jpg|png)$ {
                 access_log off;
 
                 add_header Cache-Control public;
