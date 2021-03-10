@@ -1,5 +1,5 @@
 - name: Nginx installation began
-  hosts: "{{ target_hosts }}"
+  hosts: "{{ Target_Host }}"
   vars_files: vars/vars.yaml
  #environment:
    #http_proxy: "http://{{proxy.username}}:{{proxy.password}}@{{proxy.server}}:{{proxy.port}}"     
