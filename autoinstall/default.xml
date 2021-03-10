@@ -1,0 +1,14 @@
+<network>
+  <name>default</name>
+  <uuid>d8b7fb0f-4138-4eb2-88cb-f3ba2690bf95</uuid>
+  <forward mode='nat'/>
+  <bridge name='virbr0' stp='on' delay='0'/>
+  <mac address='52:54:00:7a:d1:18'/>
+  <ip address='192.168.122.1' netmask='255.255.255.0'>
+    <tftp root='/var/lib/tftp/'/>
+    <dhcp>
+      <range start='192.168.122.2' end='192.168.122.254'/>
+      <bootp file='pxelinux.0'/>
+    </dhcp>
+  </ip>
+</network>
