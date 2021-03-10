@@ -1,0 +1,13 @@
+# D-I config version 2.0
+# search path for the c32 support libraries (libcom32, libutil etc.)
+path debian-installer/amd64/boot-screens/
+include debian-installer/amd64/boot-screens/menu.cfg
+default debian-installer/amd64/boot-screens/vesamenu.c32
+prompt 0
+timeout 0
+DEFAULT debian
+
+LABEL debian
+        kernel debian-installer/amd64/linux
+        append vga=normal method=ftp://192.168.1.5/pub/debian10 initrd=debian-installer/amd64/initrd.gz auto=true interface=auto netcfg/dhcp_timeout=60 netcfg/choose_interface=auto priority=critical preseed/url=ftp://192.168.1.5/pub/debian10/preseed.cfg
+IPAPPEND 2
