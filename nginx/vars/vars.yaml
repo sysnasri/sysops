@@ -10,7 +10,6 @@ tools:
      - python3-setuptools
      - net-tools
      - iproute2
-     - nginx
 proxy: 
     username: ""
     password: ""

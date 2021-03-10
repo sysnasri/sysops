@@ -22,7 +22,15 @@
      - name: Set http proxy for APT 
        template:
           src: template/apt.proxy
-          dest: /etc/apt/apt.conf.d/proxy.conf
+          dest: /etc/apt/apt.conf.d/proxy.conf+
+
+     - name: Installing required packages. 
+       package:
+         update_cache: true
+         name: "{{item}}"
+         state: present
+       loop: "{{tools.ubuntu}}"
+       when: ansible_distribution == "Debian"
 
      - name: Adding Nginx GPG apt Key 
        apt_key:
@@ -39,16 +47,12 @@
               repo: deb-src https://nginx.org/packages/mainline/debian/ {{ansible_distribution_release}} nginx
               state: present
 
-
-     - name: Installing nginx and other packages. 
+     - name: Install nginx
        package:
          update_cache: true
-         name: "{{item}}"
-         state: present
-       loop: "{{tools.ubuntu}}"
-       when: ansible_distribution == "Debian"
-
-
+         name: nginx
+         state: present 
+      
      - name: Enabling nginx service to run at boot time
        service:
          name: nginx
