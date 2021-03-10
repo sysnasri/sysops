@@ -1,0 +1,31 @@
+Target_Host: snapp
+tools:
+   ubuntu: 
+     - apt-transport-https
+     - curl
+     - gnupg-agent
+     - software-properties-common
+     - python3-pip
+     - virtualenv
+     - python3-setuptools
+     - net-tools
+     - iproute2
+     - nginx
+proxy: 
+    username: ""
+    password: ""
+    server: "178.22.121.13"
+    port: "8080"
+
+nameserver:
+  ns1: 8.8.8.8
+  ns2: 4.2.2.4 
+docker:
+   username: "nasri"
+   password: "6056071"     
+vhost_domain_name: "local.com"
+vhost_http_port: "80"
+vhost_https_port: "443"
+pip_modules:
+        - pip
+        - pyOpenSSL

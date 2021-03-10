@@ -1,0 +1,141 @@
+- name: Nginx installation began
+  hosts: "{{ target_hosts }}"
+  vars_files: vars/vars.yaml
+ #environment:
+   #http_proxy: "http://{{proxy.username}}:{{proxy.password}}@{{proxy.server}}:{{proxy.port}}"     
+   #https_proxy: "http://{{proxy.username}}:{{proxy.password}}@{{proxy.server}}:{{proxy.port}}"
+  #environment:
+    #http_proxy: "http://178.22.121.13:8080" 
+    #https_proxy: "http://178.22.121.13:8080"
+  tasks:
+
+     - name: Setting proper nameservers 
+       blockinfile:
+         block: |
+           nameserver "{{nameserver.ns1}}"
+           nameserver "{{nameserver.ns2}}"
+         insertafter: EOF
+         path: /etc/resolv.conf
+     - name: Set http proxy for APT 
+       template:
+          src: template/apt.proxy
+          dest: /etc/apt/apt.conf.d/proxy.conf
+     - name: Adding Nginx GPG apt Key 
+       apt_key:
+            url: https://nginx.org/keys/nginx_signing.key
+            state: present
+     - name: Adding Nginx Repository
+       apt_repository:
+              repo: deb https://nginx.org/packages/mainline/debian/ {{ansible_distribution_release}} nginx
+              state: present
+     - name: Adding nginx source Repository
+       apt_repository:
+              repo: deb-src https://nginx.org/packages/mainline/debian/ {{ansible_distribution_release}} nginx
+              state: present
+     - name: Installing nginx and other packages. 
+       package:
+         update_cache: true
+         name: "{{item}}"
+         state: present
+       loop: "{{tools.ubuntu}}"
+       when: ansible_distribution == "Debian"
+     - name: Enabling nginx service to run at boot time
+       service:
+         name: nginx
+         enabled: true 
+         state: started
+     - name: Ensure directory exists for local self-signed TLS certs.
+       file:
+        path: /etc/nginx/ssl/{{ vhost_domain_name }}
+        state: directory
+
+     - name: Generate an OpenSSL private key.
+       openssl_privatekey:
+          path: /etc/nginx/ssl/{{ vhost_domain_name }}/privkey.pem
+
+     - name: Generate an OpenSSL CSR.
+       openssl_csr:
+        path: /etc/nginx/ssl/{{ vhost_domain_name }}.csr
+        privatekey_path: /etc/nginx/ssl/{{ vhost_domain_name }}/privkey.pem
+        common_name: "{{ vhost_domain_name }}"
+
+     - name: Generate a Self Signed OpenSSL certificate.
+       openssl_certificate:
+          path: /etc/nginx/ssl/{{ vhost_domain_name }}/fullchain.pem
+          privatekey_path: /etc/nginx/ssl/{{ vhost_domain_name }}/privkey.pem
+          csr_path: /etc/nginx/ssl/{{ vhost_domain_name }}.csr
+          provider: selfsigned  
+
+     - name: Opeing port 80 through iptables
+       ansible.builtin.iptables:
+            chain: INPUT
+            protocol: tcp
+            destination_port: 80
+            ctstate: NEW
+            syn: match
+            jump: ACCEPT
+            comment: Accept new HTTP connections.
+     - name: Opeing port 443 through iptables
+       ansible.builtin.iptables:
+            chain: INPUT
+            protocol: tcp
+            destination_port: 443
+            ctstate: NEW
+            syn: match
+            jump: ACCEPT
+            comment: Accept new HTTPS connections.            
+     - name: Replace nginx.conf with Jinja template.
+       template: 
+         src: template/nginx.conf
+         dest: /etc/nginx/nginx.conf 
+         validate: "/usr/sbin/nginx -c %s -t"  
+     - name: add {{vhost_domain_name}}  as virtual host
+       template:
+            src: template/local.com
+            dest: /etc/nginx/sites-available
+            validate: "/usr/sbin/nginx -c %s -t"  
+     - name: enable site availble via symlink 
+       file:
+         src: /etc/nginx/sites-available/{{vhost_domain_name}}
+         dest: /etc/nginx/sites-enabled/
+         owner: root
+         group: root
+         state: link
+     - name: Installing Python Modules
+       pip:
+            name: "{{item}}" 
+            state: latest
+       loop: "{{pip_modules}}"
+
+     - name: Add ssl params and Self Signed
+       template:
+         src: template/self-signed.conf
+         dest: /etc/nginx/ssl/self-signed.conf
+     - name: Add ssl params and Self Signed
+       template:
+         src: template/ssl-params.conf
+         dest: /etc/nginx/ssl/ssl-params.conf
+         notify: 
+            - nginx_reload
+     - name: Add or modify nofile soft limit for the user joe
+       community.general.pam_limits:
+        domain: www-data
+        limit_type: soft
+        limit_item: nofile
+        value: 64000
+  handlers:
+    - name: nginx_reload 
+      service: 
+        name: nginx
+        state: reloaded
+
+
+
+
+
+                 
+
+
+       
+
+
