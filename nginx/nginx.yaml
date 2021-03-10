@@ -182,7 +182,16 @@
         domain: www-data
         limit_type: soft
         limit_item: nofile
-        value: "64000"
+        value: "10000"
+ 
+     - name: Add or modify nofile hard limit for the user www-data
+       community.general.pam_limits:
+        domain: www-data
+        limit_type: hard
+        limit_item: nofile
+        value: "30000"
+               
+        
         
   handlers:
     - name: nginx_restart 
