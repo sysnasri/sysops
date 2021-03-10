@@ -19,10 +19,10 @@
 
 
 
-     - name: Set http proxy for APT 
-       template:
-          src: template/apt.proxy
-          dest: /etc/apt/apt.conf.d/proxy.conf+
+     #- name: Set http proxy for APT 
+     #  template:
+     #     src: template/apt.proxy
+     #     dest: /etc/apt/apt.conf.d/proxy.conf
 
      - name: Installing required packages. 
        package:
