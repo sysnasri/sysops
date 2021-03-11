@@ -29,7 +29,7 @@
          update_cache: true
          name: "{{item}}"
          state: present
-       loop: "{{tools.ubuntu}}"
+       loop: "{{tools.debian}}"
        when: ansible_distribution == "Debian"
 
      - name: Adding Nginx GPG apt Key 

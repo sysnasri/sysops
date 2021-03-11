@@ -1,6 +1,6 @@
 Target_Host: snapp
 tools:
-   ubuntu: 
+   debian: 
      - apt-transport-https
      - curl
      - gnupg-agent
