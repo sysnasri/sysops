@@ -12,8 +12,17 @@ server {
 
         server_name {{vhost_domain_name}} www.{{vhost_domain_name}};
 
+       
         location / {
                 try_files $uri $uri/ =404;
+
+        }
+        #we can use http2_push to push extra items in first connection.
+        location /index.html {
+
+                        http2_push /style.css
+                        http2_push /favicon.png
+
 
         }
         location ~* \.(css|js|jpg|png)$ {
