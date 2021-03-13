@@ -20,8 +20,8 @@ nameserver:
   ns1: 8.8.8.8
   ns2: 4.2.2.4 
 docker:
-   username: "nasri"
-   password: "6056071"     
+   username: ""
+   password: ""     
 vhost_domain_name: "local.com"
 vhost_http_port: "80"
 vhost_https_port: "443"
